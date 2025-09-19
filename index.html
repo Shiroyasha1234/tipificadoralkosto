@@ -17,6 +17,7 @@
             --success: #28a745;
             --warning: #ffc107;
             --info: #17a2b8;
+            --danger: #dc3545;
         }
         
         * {
@@ -320,6 +321,27 @@
             color: var(--dark-gray);
         }
         
+        /* Mensajes de estado */
+        .message-container {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
         @media (max-width: 768px) {
             .filters {
                 grid-template-columns: 1fr;
@@ -419,6 +441,11 @@
                 </div>
                 
                 <button type="submit">Guardar Caso</button>
+                
+                <!-- Contenedor para mensajes de estado -->
+                <div id="message-container" class="message-container">
+                    <span id="message-text"></span>
+                </div>
             </form>
         </div>
         
@@ -569,6 +596,10 @@
         const gestorInput = document.getElementById('gestor-input');
         const gestorOptions = document.getElementById('gestor-options');
         
+        // Elementos para mensajes
+        const messageContainer = document.getElementById('message-container');
+        const messageText = document.getElementById('message-text');
+        
         // Filtros
         const filterGestor = document.getElementById('filter-gestor');
         const filterGestion = document.getElementById('filter-gestion');
@@ -613,6 +644,18 @@
         let currentPage = 1;
         const recordsPerPage = 10;
         let totalPages = 0;
+        
+        // Función para mostrar mensajes
+        function showMessage(message, isSuccess = true) {
+            messageText.textContent = message;
+            messageContainer.className = 'message-container ' + (isSuccess ? 'message-success' : 'message-error');
+            messageContainer.style.display = 'block';
+            
+            // Ocultar mensaje después de 5 segundos
+            setTimeout(() => {
+                messageContainer.style.display = 'none';
+            }, 5000);
+        }
         
         // Cambio de pestañas
         formTab.addEventListener('click', () => {
@@ -692,7 +735,7 @@
             const ingresaPor = document.getElementById('ingresa-por').value;
             
             if (!gestor || !gestores.includes(gestor)) {
-                alert('Por favor seleccione un gestor válido de la lista');
+                showMessage('Por favor seleccione un gestor válido de la lista', false);
                 return;
             }
             
@@ -700,50 +743,55 @@
         });
         
         // Función para guardar en Google Sheets
-        function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
-            // URL de tu Web App de Google Apps Script
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxA5PnPknq7FEcx6jNX-yHN9Rr8tm4TszT95ss-1575HVjG_Pt_-Uil7YNcitBm5Gzv4A/exec';
-            
-            // Mostrar indicador de carga
-            const submitBtn = caseForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-            submitBtn.disabled = true;
-            
-            fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    gestor: gestor,
-                    caso: caso,
-                    gestion: gestion,
-                    ingresaPor: ingresaPor
-                })
-            })
-            .then(() => {
-                alert('Caso registrado exitosamente!');
-                caseForm.reset();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al registrar el caso. Por favor, intente nuevamente.');
-            })
-            .finally(() => {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            });
-        }
-        
+function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
+    // URL de tu Web App de Google Apps Script
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby6bRFuUyWjbHhMQS7duwSVgEJ1v_oi4Biszr8hcGL2G15W7Sv8TmwobVGDspsIlIYOjA/exec';
+
+    const submitBtn = caseForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+    submitBtn.disabled = true;
+    messageContainer.style.display = 'none';
+
+    // Enviar como application/x-www-form-urlencoded
+    const formData = new URLSearchParams();
+    formData.append('gestor', gestor);
+    formData.append('caso', caso);
+    formData.append('gestion', gestion);
+    formData.append('ingresaPor', ingresaPor);
+
+    fetch(scriptURL, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        mode: 'cors'
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error en la respuesta');
+        return response.text();
+    })
+    .then(res => {
+        showMessage('¡Caso registrado exitosamente!');
+        caseForm.reset();
+    })
+    .catch(err => {
+        console.error(err);
+        showMessage('Error al registrar el caso. Por favor, intente nuevamente.', false);
+    })
+    .finally(() => {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    });
+}        
         // Cargar registros
         function loadRecords() {
             const tbody = recordsTable.querySelector('tbody');
             tbody.innerHTML = '<tr><td colspan="5" class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando registros...</td></tr>';
             
             // URL de tu Web App de Google Apps Script para obtener datos
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxA5PnPknq7FEcx6jNX-yHN9Rr8tm4TszT95ss-1575HVjG_Pt_-Uil7YNcitBm5Gzv4A/exec?action=getData';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycby6bRFuUyWjbHhMQS7duwSVgEJ1v_oi4Biszr8hcGL2G15W7Sv8TmwobVGDspsIlIYOjA/exec?action=getData';
             
             fetch(scriptURL)
             .then(response => response.json())
@@ -954,7 +1002,7 @@
         // Exportar a Excel
         exportBtn.addEventListener('click', function() {
             // URL de tu Web App de Google Apps Script para exportar
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxA5PnPknq7FEcx6jNX-yHN9Rr8tm4TszT95ss-1575HVjG_Pt_-Uil7YNcitBm5Gzv4A/exec?action=export';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycby6bRFuUyWjbHhMQS7duwSVgEJ1v_oi4Biszr8hcGL2G15W7Sv8TmwobVGDspsIlIYOjA/exec?action=export';
             
             // Agregar parámetros de filtro si existen
             let exportURL = scriptURL;

@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tipificador - Alkosto & Ktronix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --alkosto-blue: #0054A6; /* Azul principal de Alkosto */
+            --alkosto-orange: #FF6600; /* Naranja principal de Alkosto */
+            --ktronix-primary: #FF6600;
+            --ktronix-secondary: #333333;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header modificado para cubrir todo el ancho con línea naranja */
+        header {
+            background-color: var(--alkosto-blue);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            /* Línea naranja usando pseudo-elemento para mejor control */
+            overflow: hidden;
+        }
+        
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: var(--alkosto-orange);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .tab.active {
+            background-color: var(--alkosto-orange);
+            color: white;
+        }
+        
+        .tab:not(.active):hover {
+            background-color: var(--light-gray);
+        }
+        
+        .form-container, .records-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--alkosto-blue);
+            box-shadow: 0 0 0 2px rgba(0, 84, 166, 0.2);
+        }
+        
+        /* Botones con color naranja de Alkosto */
+        button {
+            background-color: var(--alkosto-orange);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #e65c00; /* Naranja un poco más oscuro para hover */
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .date-filters {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--alkosto-blue);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .export-btn {
+            background-color: var(--success);
+            max-width: 200px;
+            margin-left: 10px;
+        }
+        
+        .export-btn:hover {
+            background-color: #218838;
+        }
+        
+        .refresh-btn {
+            background-color: var(--warning);
+            color: var(--dark-gray);
+            max-width: 200px;
+        }
+        
+        .refresh-btn:hover {
+            background-color: #e0a800;
+        }
+        
+        .clear-btn {
+            background-color: var(--info);
+            max-width: 200px;
+        }
+        
+        .clear-btn:hover {
+            background-color: #138496;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .combo-container {
+            position: relative;
+        }
+        
+        .combo-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .combo-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .combo-options div {
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .combo-options div:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--alkosto-blue);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--alkosto-blue);
+        }
+        
+        @media (max-width: 768px) {
+            .filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            header {
+                padding: 15px 0;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Eliminamos el contenedor alrededor del header para que ocupe todo el ancho -->
+    <header>
+        <div class="container">
+            <h1>Tipificador</h1>
+            <p>Sistema de gestión de casos</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" id="form-tab">Registrar Caso</div>
+            <div class="tab" id="records-tab">Ver Registros</div>
+        </div>
+        
+        <div class="form-container" id="form-section">
+            <form id="case-form">
+                <div class="form-group">
+                    <label for="gestor-input">Gestor</label>
+                    <div class="combo-container">
+                        <input type="text" id="gestor-input" class="combo-input" placeholder="Seleccione o busque un gestor" autocomplete="off">
+                        <div class="combo-options" id="gestor-options">
+                            <div data-value="LUIS FERNANDO GUTIERREZ TORRES">LUIS FERNANDO GUTIERREZ TORRES</div>
+                            <div data-value="JOSE EXNEYDER HOYOS VARGAS">JOSE EXNEYDER HOYOS VARGAS</div>
+                            <div data-value="CARLOS EDUARDO CASAS">CARLOS EDUARDO CASAS</div>
+                            <div data-value="JUAN MANUEL PUENTES POLANIA">JUAN MANUEL PUENTES POLANIA</div>
+                            <div data-value="JOHAN SEBASTIAN OVALLE">JOHAN SEBASTIAN OVALLE</div>
+                            <div data-value="CARLOS CAÑAS">CARLOS CAÑAS</div>
+                            <div data-value="ERIK HERNANDEZ">ERIK HERNANDEZ</div>
+                            <div data-value="KARELLY QUITIAN URREA">KARELLY QUITIAN URREA</div>
+                            <div data-value="DANIELA DUCUARA QUESADA">DANIELA DUCUARA QUESADA</div>
+                            <div data-value="BENJAMIN PRIETO">BENJAMIN PRIETO</div>
+                            <div data-value="CRISTIAN FERNANDO BERNAL OVIEDO">CRISTIAN FERNANDO BERNAL OVIEDO</div>
+                            <div data-value="ANA LILIANA MARQUEZ">ANA LILIANA MARQUEZ</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="caso">Número de Caso</label>
+                    <input type="text" id="caso" required placeholder="Ingrese el número de caso">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gestion">Gestión</label>
+                    <select id="gestion" required>
+                        <option value="">Seleccione tipo de gestión</option>
+                        <option value="CERRADO">CERRADO</option>
+                        <option value="CIERRE POR PROCESO EN CAJA">CIERRE POR PROCESO EN CAJA</option>
+                        <option value="DIRECCIONAMIENTO PDV">DIRECCIONAMIENTO PDV</option>
+                        <option value="SEGUIMIENTO">SEGUIMIENTO</option>
+                        <option value="RMA">RMA</option>
+                        <option value="ODT">ODT</option>
+                        <option value="ODS">ODS</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ingresa-por">Ingresa Por</label>
+                    <select id="ingresa-por" required>
+                        <option value="">Seleccione medio de ingreso</option>
+                        <option value="LLAMADA">LLAMADA</option>
+                        <option value="WHATSAPP">WHATSAPP</option>
+                        <option value="DEVUELVE TU PEDIDO">DEVUELVE TU PEDIDO</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Guardar Caso</button>
+            </form>
+        </div>
+        
+        <div class="records-container hidden" id="records-section">
+            <div class="button-group">
+                <button class="refresh-btn" id="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> Actualizar Registros
+                </button>
+                <button class="export-btn" id="export-btn">
+                    <i class="fas fa-file-excel"></i> Exportar a Excel
+                </button>
+                <button class="clear-btn" id="clear-btn">
+                    <i class="fas fa-broom"></i> Limpiar Filtros
+                </button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="total-records">0</div>
+                    <div>Total Registros</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="filtered-records">0</div>
+                    <div>Registros Filtrados</div>
+                </div>
+            </div>
+            
+            <div class="filters">
+                <div class="form-group">
+                    <label for="filter-gestor">Filtrar por Gestor</label>
+                    <select id="filter-gestor">
+                        <option value="">Todos los gestores</option>
+                        <option value="LUIS FERNANDO GUTIERREZ TORRES">LUIS FERNANDO GUTIERREZ TORRES</option>
+                        <option value="JOSE EXNEYDER HOYOS VARGAS">JOSE EXNEYDER HOYOS VARGAS</option>
+                        <option value="CARLOS EDUARDO CASAS">CARLOS EDUARDO CASAS</option>
+                        <option value="JUAN MANUEL PUENTES POLANIA">JUAN MANUEL PUENTES POLANIA</option>
+                        <option value="JOHAN SEBASTIAN OVALLE">JOHAN SEBASTIAN OVALLE</option>
+                        <option value="CARLOS CAÑAS">CARLOS CAÑAS</option>
+                        <option value="ERIK HERNANDEZ">ERIK HERNANDEZ</option>
+                        <option value="KARELLY QUITIAN URREA">KARELLY QUITIAN URREA</option>
+                        <option value="DANIELA DUCUARA QUESADA">DANIELA DUCUARA QUESADA</option>
+                        <option value="BENJAMIN PRIETO">BENJAMIN PRIETO</option>
+                        <option value="CRISTIAN FERNANDO BERNAL OVIEDO">CRISTIAN FERNANDO BERNAL OVIEDO</option>
+                        <option value="ANA LILIANA MARQUEZ">ANA LILIANA MARQUEZ</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="filter-gestion">Filtrar por Gestión</label>
+                    <select id="filter-gestion">
+                        <option value="">Todos los tipos</option>
+                        <option value="CERRADO">CERRADO</option>
+                        <option value="ESCALADO">ESCALADO</option>
+                        <option value="RMA">RMA</option>
+                        <option value="ODT">ODT</option>
+                        <option value="ODS">ODS</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="filter-ingresa">Filtrar por Ingreso</label>
+                    <select id="filter-ingresa">
+                        <option value="">Todos los medios</option>
+                        <option value="LLAMADA">LLAMADA</option>
+                        <option value="WHATSAPP">WHATSAPP</option>
+                        <option value="DEVUELVE TU PEDIDO">DEVUELVE TU PEDIDO</option>
+                    </select>
+                </div>
+                
+                <div class="date-filters">
+                    <div class="form-group">
+                        <label for="filter-fecha-especifica">Fecha Específica</label>
+                        <input type="date" id="filter-fecha-especifica">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="filter-fecha-inicio">Fecha Inicio (Rango)</label>
+                        <input type="date" id="filter-fecha-inicio">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="filter-fecha-fin">Fecha Fin (Rango)</label>
+                        <input type="date" id="filter-fecha-fin">
+                    </div>
+                </div>
+            </div>
+            
+            <div id="table-container">
+                <table id="records-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Gestor</th>
+                            <th>Caso</th>
+                            <th>Gestión</th>
+                            <th>Ingresa Por</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Los datos se cargarán dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const formTab = document.getElementById('form-tab');
+        const recordsTab = document.getElementById('records-tab');
+        const formSection = document.getElementById('form-section');
+        const recordsSection = document.getElementById('records-section');
+        const caseForm = document.getElementById('case-form');
+        const recordsTable = document.getElementById('records-table');
+        const exportBtn = document.getElementById('export-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const gestorInput = document.getElementById('gestor-input');
+        const gestorOptions = document.getElementById('gestor-options');
+        
+        // Filtros
+        const filterGestor = document.getElementById('filter-gestor');
+        const filterGestion = document.getElementById('filter-gestion');
+        const filterIngresa = document.getElementById('filter-ingresa');
+        const filterFechaEspecifica = document.getElementById('filter-fecha-especifica');
+        const filterFechaInicio = document.getElementById('filter-fecha-inicio');
+        const filterFechaFin = document.getElementById('filter-fecha-fin');
+        
+        // Estadísticas
+        const totalRecords = document.getElementById('total-records');
+        const filteredRecords = document.getElementById('filtered-records');
+        
+        // Lista de gestores
+        const gestores = [
+            "LUIS FERNANDO GUTIERREZ TORRES",
+            "JOSE EXNEYDER HOYOS VARGAS",
+            "CARLOS EDUARDO CASAS",
+            "JUAN MANUEL PUENTES POLANIA",
+            "JOHAN SEBASTIAN OVALLE",
+            "CARLOS CAÑAS",
+            "ERIK HERNANDEZ",
+            "KARELLY QUITIAN URREA",
+            "DANIELA DUCUARA QUESADA",
+            "BENJAMIN PRIETO",
+            "CRISTIAN FERNANDO BERNAL OVIEDO",
+            "ANA LILIANA MARQUEZ"
+        ];
+        
+        // Datos en memoria
+        let allRecords = [];
+        let filteredData = [];
+        
+        // Cambio de pestañas
+        formTab.addEventListener('click', () => {
+            formTab.classList.add('active');
+            recordsTab.classList.remove('active');
+            formSection.classList.remove('hidden');
+            recordsSection.classList.add('hidden');
+        });
+        
+        recordsTab.addEventListener('click', () => {
+            recordsTab.classList.add('active');
+            formTab.classList.remove('active');
+            recordsSection.classList.remove('hidden');
+            formSection.classList.add('hidden');
+            loadRecords();
+        });
+        
+        // Combo box de gestores
+        gestorInput.addEventListener('focus', function() {
+            showAllOptions();
+        });
+        
+        gestorInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            filterOptions(searchTerm);
+        });
+        
+        // Mostrar todas las opciones
+        function showAllOptions() {
+            const options = gestorOptions.querySelectorAll('div');
+            options.forEach(option => {
+                option.style.display = 'block';
+            });
+            gestorOptions.style.display = 'block';
+        }
+        
+        // Filtrar opciones según búsqueda
+        function filterOptions(searchTerm) {
+            const options = gestorOptions.querySelectorAll('div');
+            let hasMatches = false;
+            
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    option.style.display = 'block';
+                    hasMatches = true;
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+            
+            gestorOptions.style.display = hasMatches ? 'block' : 'none';
+        }
+        
+        // Seleccionar una opción
+        gestorOptions.addEventListener('click', function(e) {
+            if (e.target && e.target.matches('div')) {
+                gestorInput.value = e.target.textContent;
+                gestorOptions.style.display = 'none';
+            }
+        });
+        
+        // Cerrar el combo al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!gestorInput.contains(e.target) && !gestorOptions.contains(e.target)) {
+                gestorOptions.style.display = 'none';
+            }
+        });
+        
+        // Envío del formulario
+        caseForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const gestor = gestorInput.value;
+            const caso = document.getElementById('caso').value;
+            const gestion = document.getElementById('gestion').value;
+            const ingresaPor = document.getElementById('ingresa-por').value;
+            
+            if (!gestor || !gestores.includes(gestor)) {
+                alert('Por favor seleccione un gestor válido de la lista');
+                return;
+            }
+            
+            saveToGoogleSheets(gestor, caso, gestion, ingresaPor);
+        });
+        
+        // Función para guardar en Google Sheets
+        function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
+            // URL de tu Web App de Google Apps Script
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyMnbaypT7A_SMkGW8fCH5DeIxsInePC96EPTuLtx_Oe1FaGhXODGR1QSi4zNmiOuaoTg/exec';
+            
+            // Mostrar indicador de carga
+            const submitBtn = caseForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            submitBtn.disabled = true;
+            
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    gestor: gestor,
+                    caso: caso,
+                    gestion: gestion,
+                    ingresaPor: ingresaPor
+                })
+            })
+            .then(() => {
+                alert('Caso registrado exitosamente!');
+                caseForm.reset();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al registrar el caso. Por favor, intente nuevamente.');
+            })
+            .finally(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+        
+        // Cargar registros
+        function loadRecords() {
+            const tbody = recordsTable.querySelector('tbody');
+            tbody.innerHTML = '<tr><td colspan="5" class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando registros...</td></tr>';
+            
+            // URL de tu Web App de Google Apps Script para obtener datos
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxVe8m1r6X9-W2zdjtKNCCBAD-D-Nf1SD9wP_q8rlubVdPob6HyQSl-F_f7n0zYUAfMxA/exec?action=getData';
+            
+            fetch(scriptURL)
+            .then(response => response.json())
+            .then(data => {
+                allRecords = data;
+                applyFilters();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                tbody.innerHTML = '<tr><td colspan="5">Error al cargar los registros. Intente nuevamente.</td></tr>';
+            });
+        }
+        
+        // Aplicar filtros - MODIFICADO para manejo de zonas horarias
+        function applyFilters() {
+            filteredData = [...allRecords];
+            
+            if (filterGestor.value) {
+                filteredData = filteredData.filter(item => item.Gestor === filterGestor.value);
+            }
+            
+            if (filterGestion.value) {
+                filteredData = filteredData.filter(item => item.Gestión === filterGestion.value);
+            }
+            
+            if (filterIngresa.value) {
+                filteredData = filteredData.filter(item => item['Ingresa Por'] === filterIngresa.value);
+            }
+            
+            // Filtrar por fecha específica - CORREGIDO para manejo de zonas horarias
+            if (filterFechaEspecifica.value) {
+                const fechaEspecifica = filterFechaEspecifica.value;
+                filteredData = filteredData.filter(item => {
+                    const itemDate = new Date(item.Fecha || item.fecha);
+                    // Convertir a zona horaria de Colombia (UTC-5)
+                    const colombiaDate = new Date(itemDate.getTime() - (5 * 60 * 60 * 1000));
+                    
+                    // Convertir a formato YYYY-MM-DD para comparación exacta
+                    const itemDateString = colombiaDate.toISOString().split('T')[0];
+                    return itemDateString === fechaEspecifica;
+                });
+            }
+            
+            // Filtrar por rango de fechas (solo si no hay fecha específica) - CORREGIDO
+            if (!filterFechaEspecifica.value && filterFechaInicio.value && filterFechaFin.value) {
+                const startDate = new Date(filterFechaInicio.value);
+                // Ajustar a inicio del día en Colombia (00:00:00 UTC-5)
+                const colombiaStartDate = new Date(startDate.getTime() + (5 * 60 * 60 * 1000));
+                
+                const endDate = new Date(filterFechaFin.value);
+                // Ajustar a fin del día en Colombia (23:59:59 UTC-5)
+                const colombiaEndDate = new Date(endDate.getTime() + (5 * 60 * 60 * 1000) + (24 * 60 * 60 * 1000) - 1);
+                
+                filteredData = filteredData.filter(item => {
+                    const itemDate = new Date(item.Fecha || item.fecha);
+                    return itemDate >= colombiaStartDate && itemDate <= colombiaEndDate;
+                });
+            }
+            
+            displayRecords(filteredData);
+            updateStats();
+        }
+        
+        // Mostrar registros en la tabla
+        function displayRecords(data) {
+            const tbody = recordsTable.querySelector('tbody');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No se encontraron registros con los filtros aplicados.</td></tr>';
+                return;
+            }
+            
+            // Llenar la tabla
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${formatDate(item.Fecha || item.fecha)}</td>
+                    <td>${item.Gestor || item.gestor}</td>
+                    <td>${item.Caso || item.caso}</td>
+                    <td>${item.Gestión || item.gestion}</td>
+                    <td>${item['Ingresa Por'] || item.ingresaPor}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Formatear fecha para mostrar en zona horaria de Colombia
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            
+            // Ajustar a zona horaria de Colombia (UTC-5)
+            const colombiaDate = new Date(date.getTime() - (5 * 60 * 60 * 1000));
+            
+            return colombiaDate.toLocaleString('es-CO', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'UTC'
+            });
+        }
+        
+        // Actualizar estadísticas
+        function updateStats() {
+            totalRecords.textContent = allRecords.length;
+            filteredRecords.textContent = filteredData.length;
+        }
+        
+        // Event listeners para los filtros (aplicación automática)
+        filterGestor.addEventListener('change', applyFilters);
+        filterGestion.addEventListener('change', applyFilters);
+        filterIngresa.addEventListener('change', applyFilters);
+        filterFechaEspecifica.addEventListener('change', applyFilters);
+        filterFechaInicio.addEventListener('change', applyFilters);
+        filterFechaFin.addEventListener('change', applyFilters);
+        
+        // Botón de actualizar
+        refreshBtn.addEventListener('click', loadRecords);
+        
+        // Botón para limpiar filtros
+        clearBtn.addEventListener('click', function() {
+            filterGestor.value = '';
+            filterGestion.value = '';
+            filterIngresa.value = '';
+            filterFechaEspecifica.value = '';
+            filterFechaInicio.value = '';
+            filterFechaFin.value = '';
+            
+            applyFilters();
+        });
+        
+        // Exportar a Excel
+        exportBtn.addEventListener('click', function() {
+            // URL de tu Web App de Google Apps Script para exportar
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxVe8m1r6X9-W2zdjtKNCCBAD-D-Nf1SD9wP_q8rlubVdPob6HyQSl-F_f7n0zYUAfMxA/exec?action=export';
+            
+            // Agregar parámetros de filtro si existen
+            let exportURL = scriptURL;
+            const params = [];
+            
+            if (filterGestor.value) params.push(`gestor=${encodeURIComponent(filterGestor.value)}`);
+            if (filterGestion.value) params.push(`gestion=${encodeURIComponent(filterGestion.value)}`);
+            if (filterIngresa.value) params.push(`ingresaPor=${encodeURIComponent(filterIngresa.value)}`);
+            if (filterFechaEspecifica.value) params.push(`fechaEspecifica=${encodeURIComponent(filterFechaEspecifica.value)}`);
+            if (filterFechaInicio.value) params.push(`fechaInicio=${encodeURIComponent(filterFechaInicio.value)}`);
+            if (filterFechaFin.value) params.push(`fechaFin=${encodeURIComponent(filterFechaFin.value)}`);
+            
+            if (params.length > 0) {
+                exportURL += '&' + params.join('&');
+            }
+            
+            // Descargar el archivo
+            window.open(exportURL, '_blank');
+        });
+        
+        // Inicializar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer la fecha mínima para el filtro de fecha fin
+            filterFechaInicio.addEventListener('change', function() {
+                filterFechaFin.min = this.value;
+            });
+            
+            // Si se selecciona una fecha específica, limpiar el rango
+            filterFechaEspecifica.addEventListener('change', function() {
+                if (this.value) {
+                    filterFechaInicio.value = '';
+                    filterFechaFin.value = '';
+                }
+            });
+            
+            // Si se selecciona un rango, limpiar la fecha específica
+            filterFechaInicio.addEventListener('change', function() {
+                if (this.value) {
+                    filterFechaEspecifica.value = '';
+                }
+            });
+            
+            filterFechaFin.addEventListener('change', function() {
+                if (this.value) {
+                    filterFechaEspecifica.value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

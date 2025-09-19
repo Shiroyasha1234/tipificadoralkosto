@@ -631,7 +631,7 @@
         // Función para guardar en Google Sheets
         function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
             // URL de tu Web App de Google Apps Script
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzEo2l5Qd6VC_1eSjxZLwXYslqWAuIrlPJEAve4KEFOSUp-nJxq1TQKSNxL-t7MP6tG5A/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxiR9QacQK7Z00AN_FdeK3F8uZTG-3Pq5ZP2LSTMQXY3ixEX8eXcLlz5f8BFOXwcqoFEA/exec';
             
             // Mostrar indicador de carga
             const submitBtn = caseForm.querySelector('button[type="submit"]');
@@ -672,7 +672,7 @@
             tbody.innerHTML = '<tr><td colspan="5" class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando registros...</td></tr>';
             
             // URL de tu Web App de Google Apps Script para obtener datos
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzEo2l5Qd6VC_1eSjxZLwXYslqWAuIrlPJEAve4KEFOSUp-nJxq1TQKSNxL-t7MP6tG5A/exec?action=getData';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxiR9QacQK7Z00AN_FdeK3F8uZTG-3Pq5ZP2LSTMQXY3ixEX8eXcLlz5f8BFOXwcqoFEA/exec?action=getData';
             
             fetch(scriptURL)
             .then(response => response.json())
@@ -813,7 +813,7 @@
         // Exportar a Excel
         exportBtn.addEventListener('click', function() {
             // URL de tu Web App de Google Apps Script para exportar
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzEo2l5Qd6VC_1eSjxZLwXYslqWAuIrlPJEAve4KEFOSUp-nJxq1TQKSNxL-t7MP6tG5A/exec?action=export';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxiR9QacQK7Z00AN_FdeK3F8uZTG-3Pq5ZP2LSTMQXY3ixEX8eXcLlz5f8BFOXwcqoFEA/exec?action=export';
             
             // Agregar parámetros de filtro si existen
             let exportURL = scriptURL;

@@ -296,6 +296,30 @@
             color: var(--alkosto-blue);
         }
         
+        /* Paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .pagination button {
+            padding: 8px 15px;
+            background-color: var(--alkosto-blue);
+        }
+        
+        .pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .pagination-info {
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+        
         @media (max-width: 768px) {
             .filters {
                 grid-template-columns: 1fr;
@@ -319,6 +343,10 @@
             
             h1 {
                 font-size: 1.8rem;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -416,6 +444,14 @@
                     <div class="stat-number" id="filtered-records">0</div>
                     <div>Registros Filtrados</div>
                 </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="current-page">0</div>
+                    <div>Página Actual</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="total-pages">0</div>
+                    <div>Total Páginas</div>
+                </div>
             </div>
             
             <div class="filters">
@@ -460,6 +496,11 @@
                     </select>
                 </div>
                 
+                <div class="form-group">
+                    <label for="filter-caso">Filtrar por Caso</label>
+                    <input type="text" id="filter-caso" placeholder="Buscar por número de caso">
+                </div>
+                
                 <div class="date-filters">
                     <div class="form-group">
                         <label for="filter-fecha-especifica">Fecha Específica</label>
@@ -494,6 +535,23 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Controles de paginación -->
+            <div class="pagination">
+                <button id="first-page" disabled>
+                    <i class="fas fa-fast-backward"></i>
+                </button>
+                <button id="prev-page" disabled>
+                    <i class="fas fa-backward"></i>
+                </button>
+                <span class="pagination-info" id="pagination-info">Página 0 de 0</span>
+                <button id="next-page" disabled>
+                    <i class="fas fa-forward"></i>
+                </button>
+                <button id="last-page" disabled>
+                    <i class="fas fa-fast-forward"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -515,6 +573,7 @@
         const filterGestor = document.getElementById('filter-gestor');
         const filterGestion = document.getElementById('filter-gestion');
         const filterIngresa = document.getElementById('filter-ingresa');
+        const filterCaso = document.getElementById('filter-caso');
         const filterFechaEspecifica = document.getElementById('filter-fecha-especifica');
         const filterFechaInicio = document.getElementById('filter-fecha-inicio');
         const filterFechaFin = document.getElementById('filter-fecha-fin');
@@ -522,6 +581,15 @@
         // Estadísticas
         const totalRecords = document.getElementById('total-records');
         const filteredRecords = document.getElementById('filtered-records');
+        const currentPageElement = document.getElementById('current-page');
+        const totalPagesElement = document.getElementById('total-pages');
+        
+        // Paginación
+        const firstPageBtn = document.getElementById('first-page');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const lastPageBtn = document.getElementById('last-page');
+        const paginationInfo = document.getElementById('pagination-info');
         
         // Lista de gestores
         const gestores = [
@@ -542,6 +610,9 @@
         // Datos en memoria
         let allRecords = [];
         let filteredData = [];
+        let currentPage = 1;
+        const recordsPerPage = 10;
+        let totalPages = 0;
         
         // Cambio de pestañas
         formTab.addEventListener('click', () => {
@@ -678,6 +749,7 @@
             .then(response => response.json())
             .then(data => {
                 allRecords = data;
+                currentPage = 1; // Resetear a la primera página
                 applyFilters();
             })
             .catch(error => {
@@ -700,6 +772,15 @@
             
             if (filterIngresa.value) {
                 filteredData = filteredData.filter(item => item['Ingresa Por'] === filterIngresa.value);
+            }
+            
+            // Filtrar por caso (búsqueda parcial)
+            if (filterCaso.value) {
+                const searchTerm = filterCaso.value.toLowerCase();
+                filteredData = filteredData.filter(item => {
+                    const caso = (item.Caso || item.caso || '').toString().toLowerCase();
+                    return caso.includes(searchTerm);
+                });
             }
             
             // Filtrar por fecha específica - CORREGIDO para manejo de zonas horarias
@@ -732,11 +813,17 @@
                 });
             }
             
+            // Calcular paginación
+            totalPages = Math.ceil(filteredData.length / recordsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+            
             displayRecords(filteredData);
             updateStats();
+            updatePaginationControls();
         }
         
-        // Mostrar registros en la tabla
+        // Mostrar registros en la tabla (con paginación)
         function displayRecords(data) {
             const tbody = recordsTable.querySelector('tbody');
             tbody.innerHTML = '';
@@ -746,8 +833,13 @@
                 return;
             }
             
+            // Calcular registros para la página actual
+            const startIndex = (currentPage - 1) * recordsPerPage;
+            const endIndex = Math.min(startIndex + recordsPerPage, data.length);
+            const currentRecords = data.slice(startIndex, endIndex);
+            
             // Llenar la tabla
-            data.forEach(item => {
+            currentRecords.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${formatDate(item.Fecha || item.fecha)}</td>
@@ -785,12 +877,60 @@
         function updateStats() {
             totalRecords.textContent = allRecords.length;
             filteredRecords.textContent = filteredData.length;
+            currentPageElement.textContent = currentPage;
+            totalPagesElement.textContent = totalPages;
         }
+        
+        // Actualizar controles de paginación
+        function updatePaginationControls() {
+            // Actualizar información de paginación
+            paginationInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+            
+            // Habilitar/deshabilitar botones
+            firstPageBtn.disabled = currentPage <= 1;
+            prevPageBtn.disabled = currentPage <= 1;
+            nextPageBtn.disabled = currentPage >= totalPages;
+            lastPageBtn.disabled = currentPage >= totalPages;
+        }
+        
+        // Navegación de paginación
+        firstPageBtn.addEventListener('click', () => {
+            currentPage = 1;
+            displayRecords(filteredData);
+            updateStats();
+            updatePaginationControls();
+        });
+        
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayRecords(filteredData);
+                updateStats();
+                updatePaginationControls();
+            }
+        });
+        
+        nextPageBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayRecords(filteredData);
+                updateStats();
+                updatePaginationControls();
+            }
+        });
+        
+        lastPageBtn.addEventListener('click', () => {
+            currentPage = totalPages;
+            displayRecords(filteredData);
+            updateStats();
+            updatePaginationControls();
+        });
         
         // Event listeners para los filtros (aplicación automática)
         filterGestor.addEventListener('change', applyFilters);
         filterGestion.addEventListener('change', applyFilters);
         filterIngresa.addEventListener('change', applyFilters);
+        filterCaso.addEventListener('input', applyFilters);
         filterFechaEspecifica.addEventListener('change', applyFilters);
         filterFechaInicio.addEventListener('change', applyFilters);
         filterFechaFin.addEventListener('change', applyFilters);
@@ -803,6 +943,7 @@
             filterGestor.value = '';
             filterGestion.value = '';
             filterIngresa.value = '';
+            filterCaso.value = '';
             filterFechaEspecifica.value = '';
             filterFechaInicio.value = '';
             filterFechaFin.value = '';
@@ -822,6 +963,7 @@
             if (filterGestor.value) params.push(`gestor=${encodeURIComponent(filterGestor.value)}`);
             if (filterGestion.value) params.push(`gestion=${encodeURIComponent(filterGestion.value)}`);
             if (filterIngresa.value) params.push(`ingresaPor=${encodeURIComponent(filterIngresa.value)}`);
+            if (filterCaso.value) params.push(`caso=${encodeURIComponent(filterCaso.value)}`);
             if (filterFechaEspecifica.value) params.push(`fechaEspecifica=${encodeURIComponent(filterFechaEspecifica.value)}`);
             if (filterFechaInicio.value) params.push(`fechaInicio=${encodeURIComponent(filterFechaInicio.value)}`);
             if (filterFechaFin.value) params.push(`fechaFin=${encodeURIComponent(filterFechaFin.value)}`);

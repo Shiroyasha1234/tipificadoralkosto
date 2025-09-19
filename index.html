@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="icon" href="https://i.ibb.co/KjKRG5j7/Captura-de-pantalla-2025-09-19-110757.png" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tipificador - Alkosto & Ktronix</title>
@@ -631,7 +630,7 @@
         // Función para guardar en Google Sheets
         function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
             // URL de tu Web App de Google Apps Script
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxiR9QacQK7Z00AN_FdeK3F8uZTG-3Pq5ZP2LSTMQXY3ixEX8eXcLlz5f8BFOXwcqoFEA/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxG1mEycuXhDRLi0Bi4qMINDSsIu5eftrcw3LAOYxwnNsagGeaYuph2mz2OcUCnhjJopg/exec';
             
             // Mostrar indicador de carga
             const submitBtn = caseForm.querySelector('button[type="submit"]');
@@ -672,7 +671,7 @@
             tbody.innerHTML = '<tr><td colspan="5" class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando registros...</td></tr>';
             
             // URL de tu Web App de Google Apps Script para obtener datos
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxiR9QacQK7Z00AN_FdeK3F8uZTG-3Pq5ZP2LSTMQXY3ixEX8eXcLlz5f8BFOXwcqoFEA/exec?action=getData';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxG1mEycuXhDRLi0Bi4qMINDSsIu5eftrcw3LAOYxwnNsagGeaYuph2mz2OcUCnhjJopg/exec?action=getData';
             
             fetch(scriptURL)
             .then(response => response.json())
@@ -813,7 +812,7 @@
         // Exportar a Excel
         exportBtn.addEventListener('click', function() {
             // URL de tu Web App de Google Apps Script para exportar
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxiR9QacQK7Z00AN_FdeK3F8uZTG-3Pq5ZP2LSTMQXY3ixEX8eXcLlz5f8BFOXwcqoFEA/exec?action=export';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxG1mEycuXhDRLi0Bi4qMINDSsIu5eftrcw3LAOYxwnNsagGeaYuph2mz2OcUCnhjJopg/exec?action=export';
             
             // Agregar parámetros de filtro si existen
             let exportURL = scriptURL;

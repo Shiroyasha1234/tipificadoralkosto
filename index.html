@@ -672,7 +672,7 @@
             tbody.innerHTML = '<tr><td colspan="5" class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando registros...</td></tr>';
             
             // URL de tu Web App de Google Apps Script para obtener datos
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxVe8m1r6X9-W2zdjtKNCCBAD-D-Nf1SD9wP_q8rlubVdPob6HyQSl-F_f7n0zYUAfMxA/exec?action=getData';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzEo2l5Qd6VC_1eSjxZLwXYslqWAuIrlPJEAve4KEFOSUp-nJxq1TQKSNxL-t7MP6tG5A/exec?action=getData';
             
             fetch(scriptURL)
             .then(response => response.json())
@@ -813,7 +813,7 @@
         // Exportar a Excel
         exportBtn.addEventListener('click', function() {
             // URL de tu Web App de Google Apps Script para exportar
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxVe8m1r6X9-W2zdjtKNCCBAD-D-Nf1SD9wP_q8rlubVdPob6HyQSl-F_f7n0zYUAfMxA/exec?action=export';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzEo2l5Qd6VC_1eSjxZLwXYslqWAuIrlPJEAve4KEFOSUp-nJxq1TQKSNxL-t7MP6tG5A/exec?action=export';
             
             // Agregar parámetros de filtro si existen
             let exportURL = scriptURL;

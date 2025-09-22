@@ -745,7 +745,7 @@
         // Función para guardar en Google Sheets
 function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
     // URL de tu Web App de Google Apps Script
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzJm-eXwsrSQiFEikFRy6H7ty6Dk-PupNI9ub-NyCs6E7uOqzti1ff5jR40HGOHpjsuBw/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz0ANWdGU_piVKWym_G6-Mf1e1jgVvJyx4tcnZLAFTzmdbDijgf2fwNTPx_jxQ1ZgzYzw/exec';
 
     const submitBtn = caseForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
@@ -791,7 +791,7 @@ function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
             tbody.innerHTML = '<tr><td colspan="5" class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando registros...</td></tr>';
             
             // URL de tu Web App de Google Apps Script para obtener datos
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzJm-eXwsrSQiFEikFRy6H7ty6Dk-PupNI9ub-NyCs6E7uOqzti1ff5jR40HGOHpjsuBw/exec?action=getData';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbz0ANWdGU_piVKWym_G6-Mf1e1jgVvJyx4tcnZLAFTzmdbDijgf2fwNTPx_jxQ1ZgzYzw/exec?action=getData';
             
             fetch(scriptURL)
             .then(response => response.json())
@@ -1008,7 +1008,7 @@ exportBtn.addEventListener('click', function() {
     
     try {
         // URL de tu Web App de Google Apps Script para exportar
-        let exportURL = 'https://script.google.com/macros/s/AKfycby6bRFuUyWjbHhMQS7duwSVgEJ1v_oi4Biszr8hcGL2G15W7Sv8TmwobVGDspsIlIYOjA/exec?action=export';
+        let exportURL = 'https://script.google.com/macros/s/AKfycbz0ANWdGU_piVKWym_G6-Mf1e1jgVvJyx4tcnZLAFTzmdbDijgf2fwNTPx_jxQ1ZgzYzw/exec?action=export';
         
         // Agregar parámetros de filtro si existen
         const params = [];

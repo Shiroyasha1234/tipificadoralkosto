@@ -745,7 +745,7 @@
         // Función para guardar en Google Sheets
 function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
     // URL de tu Web App de Google Apps Script
-    const scriptURL = 'https://script.google.com/macros/s/AKfycby6bRFuUyWjbHhMQS7duwSVgEJ1v_oi4Biszr8hcGL2G15W7Sv8TmwobVGDspsIlIYOjA/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzJm-eXwsrSQiFEikFRy6H7ty6Dk-PupNI9ub-NyCs6E7uOqzti1ff5jR40HGOHpjsuBw/exec';
 
     const submitBtn = caseForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
@@ -791,7 +791,7 @@ function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
             tbody.innerHTML = '<tr><td colspan="5" class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando registros...</td></tr>';
             
             // URL de tu Web App de Google Apps Script para obtener datos
-            const scriptURL = 'https://script.google.com/macros/s/AKfycby6bRFuUyWjbHhMQS7duwSVgEJ1v_oi4Biszr8hcGL2G15W7Sv8TmwobVGDspsIlIYOjA/exec?action=getData';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzJm-eXwsrSQiFEikFRy6H7ty6Dk-PupNI9ub-NyCs6E7uOqzti1ff5jR40HGOHpjsuBw/exec?action=getData';
             
             fetch(scriptURL)
             .then(response => response.json())
@@ -999,59 +999,75 @@ function saveToGoogleSheets(gestor, caso, gestion, ingresaPor) {
             applyFilters();
         });
         
-        // Exportar a Excel
-        exportBtn.addEventListener('click', function() {
-            // URL de tu Web App de Google Apps Script para exportar
-            const scriptURL = 'https://script.google.com/macros/s/AKfycby6bRFuUyWjbHhMQS7duwSVgEJ1v_oi4Biszr8hcGL2G15W7Sv8TmwobVGDspsIlIYOjA/exec?action=export';
-            
-            // Agregar parámetros de filtro si existen
-            let exportURL = scriptURL;
-            const params = [];
-            
-            if (filterGestor.value) params.push(`gestor=${encodeURIComponent(filterGestor.value)}`);
-            if (filterGestion.value) params.push(`gestion=${encodeURIComponent(filterGestion.value)}`);
-            if (filterIngresa.value) params.push(`ingresaPor=${encodeURIComponent(filterIngresa.value)}`);
-            if (filterCaso.value) params.push(`caso=${encodeURIComponent(filterCaso.value)}`);
-            if (filterFechaEspecifica.value) params.push(`fechaEspecifica=${encodeURIComponent(filterFechaEspecifica.value)}`);
-            if (filterFechaInicio.value) params.push(`fechaInicio=${encodeURIComponent(filterFechaInicio.value)}`);
-            if (filterFechaFin.value) params.push(`fechaFin=${encodeURIComponent(filterFechaFin.value)}`);
-            
-            if (params.length > 0) {
-                exportURL += '&' + params.join('&');
-            }
-            
-            // Descargar el archivo
-            window.open(exportURL, '_blank');
-        });
+// Exportar a Excel - FUNCIÓN CORREGIDA
+exportBtn.addEventListener('click', function() {
+    // Mostrar mensaje de carga
+    const originalText = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando Excel...';
+    exportBtn.disabled = true;
+    
+    try {
+        // URL de tu Web App de Google Apps Script para exportar
+        let exportURL = 'https://script.google.com/macros/s/AKfycby6bRFuUyWjbHhMQS7duwSVgEJ1v_oi4Biszr8hcGL2G15W7Sv8TmwobVGDspsIlIYOjA/exec?action=export';
         
-        // Inicializar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            // Establecer la fecha mínima para el filtro de fecha fin
-            filterFechaInicio.addEventListener('change', function() {
-                filterFechaFin.min = this.value;
+        // Agregar parámetros de filtro si existen
+        const params = [];
+        
+        if (filterGestor.value) params.push(`gestor=${encodeURIComponent(filterGestor.value)}`);
+        if (filterGestion.value) params.push(`gestion=${encodeURIComponent(filterGestion.value)}`);
+        if (filterIngresa.value) params.push(`ingresaPor=${encodeURIComponent(filterIngresa.value)}`);
+        if (filterCaso.value) params.push(`caso=${encodeURIComponent(filterCaso.value)}`);
+        if (filterFechaEspecifica.value) params.push(`fechaEspecifica=${encodeURIComponent(filterFechaEspecifica.value)}`);
+        if (filterFechaInicio.value) params.push(`fechaInicio=${encodeURIComponent(filterFechaInicio.value)}`);
+        if (filterFechaFin.value) params.push(`fechaFin=${encodeURIComponent(filterFechaFin.value)}`);
+        
+        if (params.length > 0) {
+            exportURL += '&' + params.join('&');
+        }
+        
+        console.log('URL de exportación:', exportURL);
+        
+        // Usar fetch para manejar mejor la descarga
+        fetch(exportURL)
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                return response.text();
+            })
+            .then(csvData => {
+                // Crear y descargar el archivo
+                const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                // Crear nombre de archivo con fecha
+                const fecha = new Date().toISOString().split('T')[0];
+                link.setAttribute('href', url);
+                link.setAttribute('download', `registros_casos_${fecha}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showMessage('Archivo exportado exitosamente');
+            })
+            .catch(error => {
+                console.error('Error en exportación:', error);
+                showMessage('Error al exportar. Por favor, intente nuevamente.', false);
+            })
+            .finally(() => {
+                // Restaurar botón
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
             });
-            
-            // Si se selecciona una fecha específica, limpiar el rango
-            filterFechaEspecifica.addEventListener('change', function() {
-                if (this.value) {
-                    filterFechaInicio.value = '';
-                    filterFechaFin.value = '';
-                }
-            });
-            
-            // Si se selecciona un rango, limpiar la fecha específica
-            filterFechaInicio.addEventListener('change', function() {
-                if (this.value) {
-                    filterFechaEspecifica.value = '';
-                }
-            });
-            
-            filterFechaFin.addEventListener('change', function() {
-                if (this.value) {
-                    filterFechaEspecifica.value = '';
-                }
-            });
-        });
-    </script>
+        
+    } catch (error) {
+        console.error('Error en exportación:', error);
+        showMessage('Error al exportar. Por favor, intente nuevamente.', false);
+        exportBtn.innerHTML = originalText;
+        exportBtn.disabled = false;
+    }
+});  
+
+  </script>
 </body>
 </html>
